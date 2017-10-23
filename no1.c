@@ -5,31 +5,36 @@
 #include <stdlib.h>
 
 pthread_t tid[2];
+int status=0;
 
-void* copy(void *arg)
+void* copy1()
 {
-	pthread_t id = pthread_self();
-	if(pthread_equal(id,tid[0]))
+	status=0;
+	pid_t child; child=fork();
+	if(child==0)
 	{
-		char *argv[]={"cp","baca.txt","/home/yoshi/seslabmodul3/salin1.txt",NULL};
-		execv("/bin/cp", argv);
+	char *argv[]={"cp", "baca.txt","/home/yoshi/seslabmodul3/salin1.txt",NULL};
+	execv("/bin/cp",argv);
 	}
-	else if(pthread_equal(id,tid[1]))
+	status=1;
+}
+
+void* copy2()
+{
+	while(status!=1) {}
+	pid_t child; child=fork();
+	if(child==0)
 	{
+	char *argc[]={"cp", "/home/yoshi/seslabmodul3/salin1.txt", "/home/yoshi/seslabmodul3/salin2.txt",NULL};
+	execv("/bin/cp", argc);
 	}
-	return NULL;
 }
 
 int main()
 {
-	int i; int err;
-	while(i<2)
-	{
-		err=pthread_create(&(tid[i]),NULL,&copy,NULL);
-		if(err!=0) printf("can't create thread : [%s]",strerror(err));
-		else printf("create thread success");
-		i++;
-	}
+	pthread_create(&(tid[0]),NULL,&copy1,NULL);
+	pthread_create(&(tid[1]),NULL,&copy2,NULL);
+
 	pthread_join(tid[0],NULL);
 	pthread_join(tid[1],NULL);
 	return 0;
