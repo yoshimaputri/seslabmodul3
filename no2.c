@@ -4,22 +4,21 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-pthread_t tid[100]; int N,T,group;
+pthread_t tid[100]; int N,T,group,a=0;
 
-void* prime(int N,int T)
+void* prime()
 {
 	pthread_t id = pthread_self();
-	int a;
-	while(a<T){
-	group = N/T;
+	printf("a=%d\n", a);
+	group = N/T; //printf("group=%d", group);
 	if(pthread_equal(id,tid[0]))
-	{	
+	{
 		for(int x=2; x<=group; x++){
 			int cek=1;
-			for(int j=3;j<=group;j++){
+			for(int j=2;j<x;j++){
 				if(x%j==0) cek=0;
 			}
-			if(cek==1) printf("%d ", x);
+			if(cek==1) printf("%d\n", x);
 		}
 	}
 	else if(pthread_equal(id,tid[!0]))
@@ -28,26 +27,24 @@ void* prime(int N,int T)
 		int akhir=group*(a+1);
 		for(int x=awal;x<=akhir;x++){
 			int cek=1;
-			for(int j=awal+1;j<=akhir;j++){
+			for(int j=awal;j<=x;j++){
 				if(x%j==0) cek=0;
 			}
-			if(cek==1) printf("%d ", x);
+			if(cek==1) printf("%d\n", x);
 		}
 	}
-	}
+	a++;
 	return NULL;
 }
 
 int main()
 {
-	int i; int err;
+	int i=0;
 	printf("Masukkan N batas bilangan dan T jumlah thread : ");
 	scanf("%d %d", &N, &T);
 	while(i<T)
 	{
-		err=pthread_create(&(tid[i]),NULL,prime(N,T),NULL);
-		if(err!=0) printf("can't create thread : [%s]",strerror(err));
-		else printf("create thread success");
+		pthread_create(&(tid[i]),NULL,&prime,NULL);
 		i++;
 	}
 	i=0;
